@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한걸음 · 韩语一步</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Clean Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        warm: {
+                            50: '#FAF8F5',
+                            100: '#F3EFEA',
+                            200: '#E6DFD5',
+                            500: '#8C7A6B',
+                            700: '#5C4E43',
+                        },
+                        sage: {
+                            50: '#F4F7F4',
+                            100: '#E3EBE3',
+                            500: '#7A9A7E',
+                            600: '#5F7D63',
+                        },
+                        coral: {
+                            100: '#FCEBE6',
+                            500: '#E07A5F',
+                            600: '#C85A3F',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAF8F5;
+            color: #4A4238;
+            font-family: 'Noto Sans SC', 'Noto Sans KR', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .card-flip-inner {
+            transition: transform 0.4s;
+            transform-style: preserve-3d;
+        }
+        .flipped .card-flip-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-sage-100 selection:text-sage-600">
+
+    <!-- Header Navigation -->
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-warm-200 sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="switchView('home')">
+                <span class="text-2xl text-sage-500 font-bold">한걸음</span>
+                <span class="text-xs px-2 py-0.5 bg-warm-100 text-warm-700 rounded-full font-medium">韩语一步</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="switchView('dict')" class="p-2 text-warm-500 hover:text-warm-700 hover:bg-warm-100 rounded-lg transition-colors" title="词库管理">
+                    <i class="fa-solid fa-book text-lg"></i>
+                </button>
+                <button onclick="switchView('stats')" class="p-2 text-warm-500 hover:text-warm-700 hover:bg-warm-100 rounded-lg transition-colors" title="学习进度">
+                    <i class="fa-solid fa-chart-line text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-2xl w-full mx-auto p-4 flex-grow flex flex-col justify-center">
+
+        <!-- VIEW 1: HOME PAGE -->
+        <section id="view-home" class="space-y-6">
+            <div class="text-center py-6 space-y-2">
+                <h1 class="text-3xl font-bold tracking-tight text-warm-700">오늘의 한걸음</h1>
+                <p class="text-warm-500 text-sm">不积跬步，无以至千里。按需选择练习模块：</p>
+            </div>
+
+            <!-- Mode Selector Cards -->
+            <div class="grid gap-4 sm:grid-cols-3">
+                <!-- Recognition Mode (Recognize: KR -> CN) -->
+                <div onclick="startPractice('recognize')" class="bg-white p-6 rounded-2xl border border-warm-200 shadow-sm hover:shadow-md hover:border-sage-500 transition-all cursor-pointer text-center group flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-sage-50 text-sage-500 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-eye text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-warm-700 mb-1">1. 认得</h3>
+                        <p class="text-xs text-warm-500">韩 → 中 识别</p>
+                    </div>
+                    <span class="mt-4 inline-block text-xs text-sage-600 font-medium">开始练习 &rarr;</span>
+                </div>
+
+                <!-- Recall Mode (Recall: CN -> KR) -->
+                <div onclick="startPractice('recall')" class="bg-white p-6 rounded-2xl border border-warm-200 shadow-sm hover:shadow-md hover:border-sage-500 transition-all cursor-pointer text-center group flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-warm-100 text-warm-700 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-brain text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-warm-700 mb-1">2. 想起</h3>
+                        <p class="text-xs text-warm-500">中 → 韩 回忆</p>
+                    </div>
+                    <span class="mt-4 inline-block text-xs text-warm-700 font-medium">开始练习 &rarr;</span>
+                </div>
+
+                <!-- Write Mode (Spelling) -->
+                <div onclick="startPractice('write')" class="bg-white p-6 rounded-2xl border border-warm-200 shadow-sm hover:shadow-md hover:border-sage-500 transition-all cursor-pointer text-center group flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-coral-100 text-coral-500 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-pen-keyboard text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-warm-700 mb-1">3. 会写</h3>
+                        <p class="text-xs text-warm-500">韩语拼写练习</p>
+                    </div>
+                    <span class="mt-4 inline-block text-xs text-coral-600 font-medium">开始练习 &rarr;</span>
+                </div>
+            </div>
+
+            <!-- Quick Stats Summary Footer in Home -->
+            <div class="bg-white/60 rounded-xl p-4 border border-warm-200 text-center flex justify-around text-xs text-warm-500">
+                <div>
+                    <span class="block text-lg font-bold text-warm-700" id="stat-total-words">0</span>
+                    词库总数
+                </div>
+                <div class="border-r border-warm-200"></div>
+                <div>
+                    <span class="block text-lg font-bold text-sage-600" id="stat-mastered-words">0</span>
+                    完全掌握
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: PRACTICE SESSION (Single Item Card Interface) -->
+        <section id="view-practice" class="hidden flex-col flex-grow justify-between space-y-4">
+            
+            <!-- Session Header & Progress Bar -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs text-warm-500 font-medium">
+                    <button onclick="switchView('home')" class="hover:text-warm-700"><i class="fa-solid fa-arrow-left"></i> 退出本轮</button>
+                    <span id="practice-mode-title" class="font-bold text-warm-700">模块说明</span>
+                    <span>剩余待复习: <strong id="remaining-count" class="text-coral-500">0</strong></span>
+                </div>
+                <!-- Progress Line -->
+                <div class="w-full bg-warm-200 h-2 rounded-full overflow-hidden">
+                    <div id="practice-progress-bar" class="bg-sage-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Card Container -->
+            <div class="flex-grow flex items-center justify-center my-4">
+                
+                <!-- CARD TYPE A: RECOGNIZE & RECALL (Flip Card Style) -->
+                <div id="card-flashcard" class="w-full bg-white min-h-[300px] rounded-3xl border border-warm-200 shadow-sm p-8 flex flex-col justify-between text-center relative transition-all">
+                    <!-- Top Subtitle Indicator -->
+                    <p id="card-prompt" class="text-xs uppercase tracking-widest text-warm-500 font-medium">提示</p>
+                    
+                    <!-- Primary Word Display -->
+                    <div class="my-auto py-6">
+                        <h2 id="card-primary-text" class="text-4xl font-bold tracking-wide text-warm-700 mb-2">단어</h2>
+                        <p id="card-pronunciation" class="text-sm text-warm-500 font-mono hidden">[发音]</p>
+                        
+                        <!-- Answer Area (Revealed on Click) -->
+                        <div id="card-answer-area" class="mt-6 pt-6 border-t border-warm-100 hidden">
+                            <p id="card-secondary-text" class="text-2xl font-bold text-sage-600">中文释义</p>
+                            <p id="card-example-text" class="text-xs text-warm-500 italic mt-2">例句准备中...</p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Action Buttons for Flashcard -->
+                    <div id="flashcard-actions-show" class="w-full">
+                        <button onclick="revealAnswer()" class="w-full py-3 bg-warm-100 hover:bg-warm-200 text-warm-700 font-semibold rounded-xl transition-colors">
+                            <i class="fa-solid fa-eye"></i> 显示答案
+                        </button>
+                    </div>
+
+                    <div id="flashcard-actions-grade" class="w-full grid grid-cols-2 gap-3 hidden">
+                        <button onclick="handleGrade(false)" class="py-3 bg-coral-100 hover:bg-coral-500 hover:text-white text-coral-600 font-semibold rounded-xl transition-colors">
+                            <i class="fa-solid fa-xmark"></i> 没记住 (循环)
+                        </button>
+                        <button onclick="handleGrade(true)" class="py-3 bg-sage-500 hover:bg-sage-600 text-white font-semibold rounded-xl transition-colors shadow-sm">
+                            <i class="fa-solid fa-check"></i> 记住了
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CARD TYPE B: SPELLING (Input Form) -->
+                <div id="card-spelling" class="w-full bg-white min-h-[300px] rounded-3xl border border-warm-200 shadow-sm p-8 flex-col justify-between text-center relative hidden">
+                    <p class="text-xs uppercase tracking-widest text-warm-500 font-medium">看中文拼写韩语</p>
+
+                    <div class="my-auto py-4 space-y-4">
+                        <h2 id="spelling-cn-text" class="text-3xl font-bold text-warm-700">中文</h2>
+                        
+                        <!-- Input Box -->
+                        <div class="max-w-md mx-auto relative">
+                            <input type="text" id="spelling-input" placeholder="输入韩语单词..." autocomplete="off" class="w-full text-center text-2xl font-bold py-3 px-4 rounded-xl border-2 border-warm-200 focus:border-sage-500 focus:outline-none transition-colors">
+                        </div>
+
+                        <!-- Feedback Box -->
+                        <div id="spelling-feedback" class="text-sm font-medium hidden">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div id="spelling-actions-submit">
+                        <button onclick="checkSpelling()" class="w-full py-3 bg-sage-500 hover:bg-sage-600 text-white font-semibold rounded-xl transition-colors">
+                            提交判定
+                        </button>
+                    </div>
+                    <div id="spelling-actions-next" class="hidden">
+                        <button onclick="nextSpellingItem()" class="w-full py-3 bg-warm-700 hover:bg-warm-500 text-white font-semibold rounded-xl transition-colors">
+                            下一题 &rarr;
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- VIEW 3: SESSION COMPLETED -->
+        <section id="view-complete" class="hidden text-center py-12 space-y-6">
+            <div class="w-20 h-20 bg-sage-100 text-sage-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-2xl font-bold text-warm-700">수고하셨습니다!</h2>
+                <p class="text-warm-500 text-sm">恭喜你！本轮所有单词已真正通过考核。</p>
+            </div>
+            <div class="pt-4">
+                <button onclick="switchView('home')" class="px-8 py-3 bg-sage-500 hover:bg-sage-600 text-white font-semibold rounded-xl transition-colors shadow-sm">
+                    返回首页
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 4: DICTIONARY MANAGEMENT -->
+        <section id="view-dict" class="hidden space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-warm-700">词库管理</h2>
+                <button onclick="resetDefaultDict()" class="text-xs text-coral-600 hover:underline">恢复初始词库</button>
+            </div>
+
+            <!-- Add Word Form -->
+            <form onsubmit="addNewWord(event)" class="bg-white p-4 rounded-xl border border-warm-200 space-y-3">
+                <h3 class="text-xs font-bold text-warm-500 uppercase">添加新单词</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="new-kr" placeholder="韩语 (例: 사과)" required class="p-2 text-sm border border-warm-200 rounded-lg focus:outline-none focus:border-sage-500">
+                    <input type="text" id="new-cn" placeholder="中文 (例: 苹果)" required class="p-2 text-sm border border-warm-200 rounded-lg focus:outline-none focus:border-sage-500">
+                </div>
+                <button type="submit" class="w-full py-2 bg-warm-700 hover:bg-warm-500 text-white text-xs font-bold rounded-lg transition-colors">
+                    + 添加到词库
+                </button>
+            </form>
+
+            <!-- Word List Table -->
+            <div class="bg-white rounded-xl border border-warm-200 overflow-hidden">
+                <div class="max-h-80 overflow-y-auto divide-y divide-warm-100" id="dict-word-list">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: STATS -->
+        <section id="view-stats" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-warm-700">学习进度统计</h2>
+            <div class="bg-white p-6 rounded-2xl border border-warm-200 space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-warm-500">全库完成度</span>
+                    <span class="text-sm font-bold text-sage-600" id="stats-percentage">0%</span>
+                </div>
+                <div class="w-full bg-warm-100 h-3 rounded-full overflow-hidden">
+                    <div id="stats-progress-bar" class="bg-sage-500 h-full w-0 transition-all"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center pt-4 border-t border-warm-100 text-xs">
+                    <div>
+                        <div class="font-bold text-warm-700 text-base" id="stat-total">0</div>
+                        <div class="text-warm-500">总词数</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sage-600 text-base" id="stat-learned">0</div>
+                        <div class="text-warm-500">完全掌握</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-coral-500 text-base" id="stat-learning">0</div>
+                        <div class="text-warm-500">学习中</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-xs text-warm-500 border-t border-warm-200">
+        한걸음 · 韩语一步 &copy; 2026. 坚持就是胜利。
+    </footer>
+
+    <!-- Application Core Logic -->
+    <script>
+        // Default seed vocabulary
+        const DEFAULT_WORDS = [
+            { id: 1, kr: "안녕하세요", cn: "你好", recognize: false, recall: false, write: false },
+            { id: 2, kr: "감사합니다", cn: "谢谢", recognize: false, recall: false, write: false },
+            { id: 3, kr: "사과", cn: "苹果 / 道歉", recognize: false, recall: false, write: false },
+            { id: 4, kr: "학교", cn: "学校", recognize: false, recall: false, write: false },
+            { id: 5, kr: "친구", cn: "朋友", recognize: false, recall: false, write: false },
+            { id: 6, kr: "물", cn: "水", recognize: false, recall: false, write: false },
+            { id: 7, kr: "사랑해", cn: "我爱你", recognize: false, recall: false, write: false }
+        ];
+
+        // Global States
+        let dictionary = [];
+        let currentMode = ''; // 'recognize', 'recall', 'write'
+        let queue = [];       // Queue of active review items in current session
+        let initialSessionCount = 0;
+        let currentItem = null;
+
+        // Initialize App on Load
+        window.onload = function() {
+            loadDictionary();
+            updateStats();
+        };
+
+        // Storage Management
+        function loadDictionary() {
+            const stored = localStorage.getItem('hangeul_step_dict');
+            if (stored) {
+                try {
+                    dictionary = JSON.parse(stored);
+                } catch(e) {
+                    dictionary = [...DEFAULT_WORDS];
+                }
+            } else {
+                dictionary = [...DEFAULT_WORDS];
+                saveDictionary();
+            }
+        }
+
+        function saveDictionary() {
+            localStorage.setItem('hangeul_step_dict', JSON.stringify(dictionary));
+            updateStats();
+        }
+
+        function resetDefaultDict() {
+            if (confirm("确定要恢复到默认初始词库吗？自定义单词将被清空。")) {
+                dictionary = [...DEFAULT_WORDS];
+                saveDictionary();
+                renderDictList();
+                alert("词库已重置");
+            }
+        }
+
+        // View Navigation
+        function switchView(viewName) {
+            ['home', 'practice', 'complete', 'dict', 'stats'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.classList.add('hidden');
+            });
+            
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                if (viewName === 'practice') targetView.classList.add('flex');
+            }
+
+            if (viewName === 'dict') renderDictList();
+            if (viewName === 'stats') updateStats();
+        }
+
+        // --- PRACTICE SESSION ENGINE ---
+
+        function startPractice(mode) {
+            currentMode = mode;
+            // Build working queue: Clone array to ensure review loop works
+            queue = [...dictionary];
+            // Shuffle queue
+            queue.sort(() => Math.random() - 0.5);
+            
+            initialSessionCount = queue.length;
+
+            if (initialSessionCount === 0) {
+                alert("词库为空，请先在词库管理中添加单词！");
+                return;
+            }
+
+            // Set UI Title
+            const titles = {
+                'recognize': '认得 (韩 -> 中)',
+                'recall': '想起 (中 -> 韩)',
+                'write': '会写 (拼写练习)'
+            };
+            document.getElementById('practice-mode-title').innerText = titles[mode];
+
+            switchView('practice');
+            loadNextQueueItem();
+        }
+
+        function updateSessionProgress() {
+            document.getElementById('remaining-count').innerText = queue.length;
+            const completed = initialSessionCount - queue.length;
+            const percent = Math.max(0, Math.min(100, (completed / initialSessionCount) * 100));
+            document.getElementById('practice-progress-bar').style.width = `${percent}%`;
+        }
+
+        function loadNextQueueItem() {
+            updateSessionProgress();
+
+            if (queue.length === 0) {
+                switchView('complete');
+                return;
+            }
+
+            currentItem = queue[0]; // Take item from front of queue
+
+            // Reset Card UI Elements
+            document.getElementById('card-answer-area').classList.add('hidden');
+            document.getElementById('flashcard-actions-show').classList.remove('hidden');
+            document.getElementById('flashcard-actions-grade').classList.add('hidden');
+            
+            // Toggle Card Layout Type
+            if (currentMode === 'write') {
+                document.getElementById('card-flashcard').classList.add('hidden');
+                document.getElementById('card-spelling').classList.remove('hidden');
+                document.getElementById('card-spelling').classList.add('flex');
+                setupSpellingCard();
+            } else {
+                document.getElementById('card-spelling').classList.add('hidden');
+                document.getElementById('card-flashcard').classList.remove('hidden');
+                setupFlashcard();
+            }
+        }
+
+        // 1 & 2: Flashcard Setup
+        function setupFlashcard() {
+            if (currentMode === 'recognize') {
+                document.getElementById('card-prompt').innerText = '请看韩语回忆中文释义';
+                document.getElementById('card-primary-text').innerText = currentItem.kr;
+                document.getElementById('card-secondary-text').innerText = currentItem.cn;
+            } else { // 'recall'
+                document.getElementById('card-prompt').innerText = '请看中文回忆对应韩语';
+                document.getElementById('card-primary-text').innerText = currentItem.cn;
+                document.getElementById('card-secondary-text').innerText = currentItem.kr;
+            }
+        }
+
+        function revealAnswer() {
+            document.getElementById('card-answer-area').classList.remove('hidden');
+            document.getElementById('flashcard-actions-show').classList.add('hidden');
+            document.getElementById('flashcard-actions-grade').classList.remove('hidden');
+        }
+
+        function handleGrade(remembered) {
+            if (remembered) {
+                // Update persistent item record
+                if (currentMode === 'recognize') currentItem.recognize = true;
+                if (currentMode === 'recall') currentItem.recall = true;
+                saveDictionary();
+
+                // Remove from active queue
+                queue.shift();
+            } else {
+                // "Didn't Remember": Rotate to back of queue after at least a short delay
+                const failedItem = queue.shift();
+                if (queue.length > 2) {
+                    queue.splice(2, 0, failedItem); // Insert 2 steps back
+                } else {
+                    queue.push(failedItem);
+                }
+            }
+            loadNextQueueItem();
+        }
+
+        // 3: Spelling Setup & Validation
+        function setupSpellingCard() {
+            document.getElementById('spelling-cn-text').innerText = currentItem.cn;
+            const input = document.getElementById('spelling-input');
+            input.value = '';
+            input.disabled = false;
+            input.className = "w-full text-center text-2xl font-bold py-3 px-4 rounded-xl border-2 border-warm-200 focus:border-sage-500 focus:outline-none transition-colors";
+            
+            document.getElementById('spelling-feedback').classList.add('hidden');
+            document.getElementById('spelling-actions-submit').classList.remove('hidden');
+            document.getElementById('spelling-actions-next').classList.add('hidden');
+            
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function checkSpelling() {
+            const input = document.getElementById('spelling-input');
+            const userVal = input.value.trim();
+            const feedback = document.getElementById('spelling-feedback');
+            
+            if (!userVal) return;
+
+            input.disabled = true;
+            document.getElementById('spelling-actions-submit').classList.add('hidden');
+            document.getElementById('spelling-actions-next').classList.remove('hidden');
+
+            if (userVal === currentItem.kr) {
+                // Correct
+                input.className = "w-full text-center text-2xl font-bold py-3 px-4 rounded-xl border-2 border-sage-500 bg-sage-50 text-sage-600";
+                feedback.innerHTML = `<span class="text-sage-600"><i class="fa-solid fa-circle-check"></i> 拼写正确！</span>`;
+                
+                currentItem.write = true;
+                saveDictionary();
+                queue.shift(); // Passed
+            } else {
+                // Incorrect
+                input.className = "w-full text-center text-2xl font-bold py-3 px-4 rounded-xl border-2 border-coral-500 bg-coral-100 text-coral-600";
+                feedback.innerHTML = `<span class="text-coral-600 block"><i class="fa-solid fa-circle-xmark"></i> 拼写错误</span>
+                                       <span class="text-warm-700 text-xs mt-1 block">正确拼写: <strong class="text-lg underline">${currentItem.kr}</strong></span>`;
+                
+                // Re-queue item
+                const failedItem = queue.shift();
+                if (queue.length > 1) {
+                    queue.splice(2, 0, failedItem);
+                } else {
+                    queue.push(failedItem);
+                }
+            }
+            feedback.classList.remove('hidden');
+        }
+
+        function nextSpellingItem() {
+            loadNextQueueItem();
+        }
+
+        // Dictionary Management Render
+        function renderDictList() {
+            const listEl = document.getElementById('dict-word-list');
+            listEl.innerHTML = '';
+            dictionary.forEach((w, index) => {
+                const item = document.createElement('div');
+                item.className = 'p-3 flex justify-between items-center text-sm';
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold text-warm-700">${w.kr}</span>
+                        <span class="text-xs text-warm-500 ml-2">${w.cn}</span>
+                    </div>
+                    <button onclick="deleteWord(${index})" class="text-coral-500 hover:text-coral-600 p-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function addNewWord(e) {
+            e.preventDefault();
+            const kr = document.getElementById('new-kr').value.trim();
+            const cn = document.getElementById('new-cn').value.trim();
+            if (kr && cn) {
+                dictionary.push({
+                    id: Date.now(),
+                    kr: kr,
+                    cn: cn,
+                    recognize: false,
+                    recall: false,
+                    write: false
+                });
+                saveDictionary();
+                document.getElementById('new-kr').value = '';
+                document.getElementById('new-cn').value = '';
+                renderDictList();
+            }
+        }
+
+        function deleteWord(index) {
+            dictionary.splice(index, 1);
+            saveDictionary();
+            renderDictList();
+        }
+
+        // Stats Updates
+        function updateStats() {
+            const total = dictionary.length;
+            const mastered = dictionary.filter(w => w.recognize && w.recall && w.write).length;
+            const learning = total - mastered;
+            const percent = total > 0 ? Math.round((mastered / total) * 100) : 0;
+
+            document.getElementById('stat-total-words').innerText = total;
+            document.getElementById('stat-mastered-words').innerText = mastered;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-learned').innerText = mastered;
+            document.getElementById('stat-learning').innerText = learning;
+
+            document.getElementById('stats-percentage').innerText = `${percent}%`;
+            document.getElementById('stats-progress-bar').style.width = `${percent}%`;
+        }
+    </script>
+</body>
+</html>
